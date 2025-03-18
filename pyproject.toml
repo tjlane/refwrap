@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools >= 61.0", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "refwrap-phenix"
+description = ""
+readme = "README.md"
+dynamic = ["version"]
+authors = [
+    { name = "Thomas Lane", email = "thomas.joseph.lane@gmail.com" }
+]
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy >= 1.26",
+    "scipy >= 1.14.0",
+    "gemmi >= 0.6.6",
+    "reciprocalspaceship >= 1.0.2",
+    "setuptools >= 75.5.0",
+]
+
+[project.optional-dependencies]
+tests = [
+    "pytest",
+    "pytest-cov",
+    "pytest-xdist",
+    "nbmake",
+]
+
+[tool.setuptools_scm]
+version_file = "refwarp/_version.py"
+
+[tool.mypy]
+disallow_untyped_calls = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+
+[[tool.mypy.overrides]]
+module = "reciprocalspaceship.*,gemmi.*,scipy.*"
+ignore_missing_imports = true
+
+[tool.ruff]
+line-length = 100
+lint.flake8-pytest-style.fixture-parentheses = false
+lint.select = [
+    "ALL", # include all the rules, including new ones
+]
+lint.ignore = [
+    #### modules
+    "ANN", # flake8-annotations: ignore annotation-related errors
+    "C90", # mccabe complexity: ignore code complexity checks
+    "DJ",  # django: ignore Django-specific linting rules
+    "EXE", # flake8-executable: ignore file execution permission errors
+    "T10", # debugger: ignore debugger-related code (e.g., `pdb`)
+
+    #### specific rules
+    "D100",   # ignore missing docstrings in module
+    "D101",   # ignore missing docstrings in class
+    "D102",   # ignore missing docstrings in public method
+    "D103",   # ignore missing docstrings in function
+    "D104",   # ignore missing docstrings in package
+    "D105",   # ignore missing docstrings in magic methods (e.g., __init__)
+    "D106",   # ignore missing docstrings in public nested class
+    "D107",   # ignore missing docstrings in __init__ method
+    "D205",   # ignore failure to separate summary line from description in docstring
+    "D212",   # ignore multiline docstring summary errors
+    "D400",   # periods in docstrings
+    "D401",   # ignore docstring should be in imperative mood
+    "E501",   # ignore line too long (over 79 characters)
+    "TRY003", # ignore external messages in exceptions being too verbose
+    "TD002",  # to do authorship
+    "TD003",  # to do issue
+    "PD002",  # allow inplace modifications in Pandas operations
+    "TC001", # type checking blocks
+    "TC002", # type checking blocks
+    "TC003", # type checking blocks
+    "COM812", # missing trailing comma, conflicts
+    "ISC001", # string line concat, conflicts
+]
+exclude = [
+    "build/",
+    "dist/",
+    "migrations/",
+    ".venv/",
+    ".git/",
+    "__pycache__/",
+    "*.pyc",
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"test/**/*.py" = [
+    "S101",     # asserts allowed in tests
+    "ARG",      # unused function args -> fixtures
+    "PLR2004",  # magic value used in comparison
+    "FBT001",   # allow positional bools as function args
+    "SLF001",   # access private methods
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
