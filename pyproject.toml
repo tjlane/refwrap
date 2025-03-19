@@ -3,10 +3,10 @@ requires = ["setuptools >= 61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "refwrap-phenix"
-description = ""
+name = "refwrap"
+description = "just a simple and stupid wrapper for refinement programs"
+version = "0.1.0"
 readme = "README.md"
-dynamic = ["version"]
 authors = [
     { name = "Thomas Lane", email = "thomas.joseph.lane@gmail.com" }
 ]
@@ -31,9 +31,6 @@ tests = [
     "pytest-xdist",
     "nbmake",
 ]
-
-[tool.setuptools_scm]
-version_file = "refwarp/_version.py"
 
 [tool.mypy]
 disallow_untyped_calls = true
