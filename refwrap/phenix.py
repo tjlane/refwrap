@@ -4,7 +4,7 @@ import re
 import shutil
 import subprocess
 import tempfile
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -12,13 +12,14 @@ import gemmi
 import reciprocalspaceship as rs
 from reciprocalspaceship.utils import add_rfree
 
-
 @dataclass
 class PhenixParams:
     number_of_macrocycles: int = 3
+    cif_files: list[str] = field(default_factory=list)
 
     def format(self) -> list[str]:
         formatted_parameters: list[str] = [
+            *self.cif_files,
             f"main.number_of_macro_cycles={self.number_of_macrocycles}",
         ]
         return formatted_parameters
@@ -31,7 +32,7 @@ class RefinementStats:
 
     @staticmethod
     def extract_r_values(text: str) -> tuple[float, float]:
-        match = re.search(r"R-work\s*=\s*([0-9.]+).*?R-free\s*=\s*([0-9.]+)", text)
+        match = re.search(r"Final R-work\s*=\s*([0-9.]+).*?R-free\s*=\s*([0-9.]+)", text)
         if match:
             r_work = float(match.group(1))
             r_free = float(match.group(2))
@@ -72,11 +73,10 @@ def phenixrefine(
         structure.write_pdb(str(tmpdir_path / "input.pdb"))
 
         cmd = ["phenix.refine", "input.pdb", "input.mtz", *phenix_params.format()]
-
         process_return = subprocess.run(cmd, cwd=tmpdir, check=False, capture_output=True)
-        print(process_return)
 
         if process_return.returncode != 0:
+            print(process_return)
             raise subprocess.CalledProcessError(process_return.returncode, cmd=cmd)
 
         refined_pdb = tmpdir_path / "input_refine_001.pdb"
@@ -91,6 +91,7 @@ def phenixrefine(
 
         structure = gemmi.read_structure(str(refined_pdb))
         mtz_dataset = rs.read_mtz(str(refined_mtz))
+        mtz_dataset.dropna()
         stats = RefinementStats.read_from_log(refinment_log)
 
         return structure, mtz_dataset, stats
